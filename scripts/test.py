@@ -75,7 +75,7 @@ if __name__ == '__main__':
         x0 = torch.Tensor([
             [np.cos(2 * i * np.pi / NX), np.sin(2 * i * np.pi / NX)]
              for i in range(NX)])
-        traj = net(x0, torch.linspace(L, R, NT)).numpy()
+        traj = net.trajectory(x0, L, R, NT).numpy()
 
         # plotting
         fig, ax = plt.subplots()

@@ -40,6 +40,7 @@ class ODEBlock(nn.Module):
         return out[1] if timesteps is None else out
 
 
-    def trajectory(self, x, num_timesteps):
-        timesteps = torch.linspace(0., 1., num_timesteps)
+    def trajectory(self, x, ltime, rtime, num_timesteps):
+        assert ltime <= rtime
+        timesteps = torch.linspace(ltime, rtime, num_timesteps)
         return self.forward(x, timesteps=timesteps)
