@@ -41,6 +41,9 @@ class ODEBlock(nn.Module):
 
 
     def trajectory(self, x, ltime, rtime, num_timesteps):
-        assert ltime <= rtime
+        assert 0.0 <= ltime <= rtime
         timesteps = torch.linspace(ltime, rtime, num_timesteps)
-        return self.forward(x, timesteps=timesteps)
+        if ltime > 0.0:
+            timesteps = torch.cat([torch.Tensor([0.0]), timesteps], 0)
+        out = self.forward(x, timesteps=timesteps)
+        return out[1:] if ltime > 0.0 else out

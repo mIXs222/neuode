@@ -1,1 +1,1 @@
-__all__ = ['linear']
+__all__ = ['linear', 'conv']

@@ -1,5 +1,5 @@
 """
-Linear Dynamic Mappings
+Linear dynamic mappings
 """
 
 import numpy as np

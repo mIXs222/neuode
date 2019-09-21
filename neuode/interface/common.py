@@ -14,5 +14,6 @@ class DynamicMap(nn.Module):
     def forward(self, t, x, *args, **kwargs):
         raise NotImplementedError
 
+
     def __call__(self, t, x, *args, **kwargs):
         return self.forward(t, x, *args, **kwargs)
