@@ -57,9 +57,10 @@ class ConvSpec:
 # VAEEncoder specs
 @dataclass
 class VAESpec:
+    channel: int
     height: int
     width: int
-    channel: int
+    z_dim: int
     init_std: float
 
 

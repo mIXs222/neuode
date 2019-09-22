@@ -14,6 +14,7 @@ setup(
         'neuode',
         'neuode.function',
         'neuode.interface',
+        'neuode.model',
         'neuode.ode',
         'neuode.util',
     ],
