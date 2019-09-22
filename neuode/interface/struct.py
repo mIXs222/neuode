@@ -42,6 +42,27 @@ class LinearSpec:
     use_time: bool = False
 
 
+# Specifications for convolution layer
+@dataclass
+class ConvSpec:
+    in_channel: int
+    out_channel: int
+    kernel_size: int
+    stride: int
+    padding: int
+    act_fn: ActivationFn
+    use_time: bool = False
+
+
+# VAEEncoder specs
+@dataclass
+class VAESpec:
+    height: int
+    width: int
+    channel: int
+    init_std: float
+
+
 # ODE Block options
 @dataclass
 class ODEBlockSpec:

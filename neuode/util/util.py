@@ -2,6 +2,8 @@
 Function dump
 """
 
+import numpy as np
+import torch
 import torch.nn as nn
 
 from neuode.interface.struct import ActivationFn
@@ -43,10 +45,17 @@ def actfn2nn(act_fn):
 # wrap time into vector x
 def wrap_time_vec(t, x):
     t_aug = torch.ones(x.shape[0], 1) * t
-    return torch.cat([x, aug], 1)
+    return torch.cat([x, t_aug], 1)
 
-# wrap time into matrix x
+
+# wrap time into matrix x [batch, channel, height, width]
 def wrap_time_img(t, x):
     batch_size, channels, height, width = x.shape
     t_aug = torch.ones(batch_size, 1, height, width) * t
-    return torch.cat([x, aug], 1)
+    return torch.cat([x, t_aug], 1)
+
+
+# normalize to [0, 1]
+def normalize_range(xs):
+    mi, mx = np.min(xs), np.max(xs)
+    return (xs - mi) / (mx - mi)
