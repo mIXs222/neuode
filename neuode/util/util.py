@@ -55,6 +55,17 @@ def wrap_time_img(t, x):
     return torch.cat([x, t_aug], 1)
 
 
+# generic time wrap, only supports vec and img
+def wrap_time(t, x):
+    if len(x.shape) == 2:
+        # vector: batch_size x channels
+        return wrap_time_vec(t, x)
+    elif len(x.shape) == 4:
+        # vector: batch_size x channels x height x width
+        return wrap_time_img(t, x)
+    raise ValueError('Unknown type to extend time dimension')
+
+
 # normalize to [0, 1]
 def normalize_range(xs):
     mi, mx = np.min(xs), np.max(xs)

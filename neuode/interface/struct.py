@@ -4,6 +4,7 @@ Structs
 
 from dataclasses import dataclass
 from enum import Enum 
+from typing import List
 
 
 # Activation functions
@@ -33,27 +34,6 @@ class ActivationFn(Enum):
     LOGSOFTMAX = 22
 
 
-# Specifications for linear mapping
-@dataclass
-class LinearSpec:
-    in_dim: int
-    out_dim: int
-    act_fn: ActivationFn
-    use_time: bool = False
-
-
-# Specifications for convolution layer
-@dataclass
-class ConvSpec:
-    in_channel: int
-    out_channel: int
-    kernel_size: int
-    stride: int
-    padding: int
-    act_fn: ActivationFn
-    use_time: bool = False
-
-
 # VAEEncoder specs
 @dataclass
 class VAESpec:
@@ -64,10 +44,57 @@ class VAESpec:
     init_std: float
 
 
+# Integrator spec
+@dataclass
+class IntSpec:
+    pass
+
+
 # ODE Block options
 @dataclass
-class ODEBlockSpec:
+class ODEBlockSpec(IntSpec):
     method: str = 'dopri5'
     use_adjoint: bool = False
     tol: float = 1e-3
     max_num_steps: int = 1000
+
+
+# Basic block spec, f: X -> Y
+@dataclass
+class DMapSpec:
+    pass
+
+
+# Specifications for linear mapping
+@dataclass
+class LinearSpec(DMapSpec):
+    in_dim: int
+    out_dim: int
+    act_fn: ActivationFn
+    use_time: bool = False
+
+
+# Specifications for convolution layer
+@dataclass
+class ConvSpec(DMapSpec):
+    in_channel: int
+    out_channel: int
+    kernel_size: int
+    stride: int
+    padding: int
+    act_fn: ActivationFn
+    use_time: bool = False
+
+
+# ODE dynamic function
+@dataclass
+class ODEDMapSpec(DMapSpec):
+    odeblock: IntSpec
+    base: DMapSpec
+    use_time: bool = False
+
+
+# ODE dynamic function
+@dataclass
+class SequentialSpec(DMapSpec):
+    specs: List[DMapSpec]

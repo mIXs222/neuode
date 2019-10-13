@@ -12,10 +12,9 @@ setup(
     author_email='supawitch22@gmail.com',
     packages=[
         'neuode',
-        'neuode.function',
+        'neuode.dynamics',
         'neuode.interface',
         'neuode.model',
-        'neuode.ode',
         'neuode.util',
     ],
 )

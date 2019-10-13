@@ -9,11 +9,13 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sns
 
-from neuode.interface.common import *
-from neuode.interface.struct import *
+from neuode.interface.struct import (
+    ODEBlockSpec, LinearSpec, SequentialSpec,
+    ActivationFn,
+)
+from neuode.dynamics.composite import build_dyn
 from neuode.util.logging import logger
-import neuode.function.linear as linear
-import neuode.ode.odeblock as odeblock
+
 
 def test_sample_1(n):
     x = torch.rand(n, 3)
@@ -21,6 +23,7 @@ def test_sample_1(n):
     y[:, 0] = 3 * x[:, 0] + 4 * x[:, 1]
     y[:, 1] = 5 * x[:, 1] + 1 * x[:, 2]
     return x, y
+
 
 OMEGA = 0.3
 DAMP = 1.0
@@ -36,18 +39,18 @@ def test_sample_2(n):
     # plt.show()
     return x, y
 
+
 if __name__ == '__main__':
     # pick problem
     test_sample = test_sample_2
 
     # build model
-    lfn_specs = [
+    lfn_specs = SequentialSpec([
         LinearSpec(2, 4, ActivationFn.NONE),
         LinearSpec(4, 2, ActivationFn.NONE),
-    ]
+    ])
     ode_spec = ODEBlockSpec(use_adjoint=True)
-    lfn = linear.MLPDMap(lfn_specs)
-    net = odeblock.ODEBlock(lfn, ode_spec)
+    net = build_dyn(lfn_specs, ode_spec)
 
     # train
     criterion = nn.MSELoss()

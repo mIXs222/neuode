@@ -12,8 +12,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
 
-from neuode.interface.common import *
-from neuode.interface.struct import *
+from neuode.interface.common import DynamicMap
+from neuode.interface.struct import VAESpec
 
 
 def reset_modules(net, init_std):
@@ -112,20 +112,23 @@ class VAE(nn.Module):
 
 
 def vae_loss(vae, data):
-    bce_loss = torch.nn.BCELoss(size_average=True)
+    bce_loss = torch.nn.BCELoss(size_average=False)
     rcnst, mu, log_sigma_sq = vae(data, ret_latent=True)
-    loss_r = bce_loss(rcnst, data) # / data.size(0)
+    loss_r = bce_loss(rcnst, data) / data.size(0)
     loss_kl_elm = (mu**2) + torch.exp(log_sigma_sq) - 1 - log_sigma_sq
-    loss_kl = torch.mean(loss_kl_elm / 2.0)
-    return 3*loss_r + loss_kl, rcnst
+    loss_kl = torch.mean(torch.sum(loss_kl_elm, 1) / 2.0)
+    return (loss_r + loss_kl) * 0.01, rcnst
+
+
+def build_spec_from_loader(loader, z_dim):
+    sample, _ = next(iter(loader))
+    _, channel, height, width = sample.shape
+    return VAESpec(channel, height, width, z_dim, 0.02)
 
 
 def generate_vae(loader, z_dim=256, nepoch=100, lr=0.01, momentum=0.9, 
                  verbose=False):
-    sample, _ = next(iter(loader))
-    _, channel, height, width = sample.shape
-    vae_spec = VAESpec(channel, height, width, z_dim, 0.02)
-    vae = VAE(vae_spec)
+    vae = VAE(build_spec_from_loader(loader), z_dim)
 
     vae.train()
     for epoch in range(nepoch):
@@ -137,11 +140,11 @@ def generate_vae(loader, z_dim=256, nepoch=100, lr=0.01, momentum=0.9,
             loss.backward()
             optimizer.step()
             if verbose and (batch_idx % 100 == 0 or batch_idx == batch_total-1):
-                print('Epoch %3d [%4d/%4d (%2d%%)]: loss= %f'%(
+                print('Epoch %3d [%4d/%4d (%2d%%)]: loss=1 %f'%(
                     epoch, batch_idx, batch_total, 
                     int(100 * batch_idx / batch_total), loss.item()))
 
-        # plot result per epoch
+        # # plot result per epoch
         # import matplotlib.pyplot as plt
         # NR, NC, SZ = 2, 10, 1.5
         # fig, axes = plt.subplots(nrows=NR, ncols=NC, figsize=(NC*SZ, NR*SZ))
@@ -152,7 +155,7 @@ def generate_vae(loader, z_dim=256, nepoch=100, lr=0.01, momentum=0.9,
         #     ax.axis('off')
         # plt.show()
 
-        lr *= 0.75
+        lr *= 0.95
     vae.eval()
     return vae
 
@@ -180,4 +183,4 @@ if __name__ == '__main__':
             # torchvision.transforms.Normalize((0.1307,), (0.3081,))
     ]))
     mnist_loader = torch.utils.data.DataLoader(mnist, batch_size=BATCH_TRAIN_SIZE, shuffle=True)
-    generate_vae(mnist_loader, z_dim=64, nepoch=50, lr=0.1, verbose=True)
+    generate_vae(mnist_loader, z_dim=32, nepoch=50, lr=0.1, verbose=True)

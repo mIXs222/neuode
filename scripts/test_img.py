@@ -11,12 +11,11 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sns
 
-from neuode.interface.common import *
+from neuode.interface.common import DynamicMap
 from neuode.interface.struct import *
+from neuode.dynamics.composite import build_dyn
 from neuode.util.logging import logger
 import neuode.util.logging as logging
-import neuode.function.conv as conv
-import neuode.ode.odeblock as odeblock
 
 DAMP_1 = 2.0
 DIFFUSE = 0.05
@@ -36,15 +35,14 @@ if __name__ == '__main__':
     test_sample = test_sample_1
 
     # build model
-    cfn_specs = [
+    cfn_specs = SequentialSpec([
         ConvSpec(3, 5, kernel_size=3, stride=1, padding=1, 
                  act_fn=ActivationFn.NONE),
         ConvSpec(5, 3, kernel_size=3, stride=1, padding=1,
                  act_fn=ActivationFn.NONE),
-    ]
+    ])
     ode_spec = ODEBlockSpec(use_adjoint=True)
-    cfn = conv.FullConvDMap(cfn_specs)
-    net = odeblock.ODEBlock(cfn, ode_spec)
+    net = build_dyn(cfn_specs, ode_spec)
 
     # train
     lr, momentum = 0.001, 0.9

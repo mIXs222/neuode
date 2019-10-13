@@ -6,7 +6,11 @@ import torch
 import torch.nn as nn
 from torchdiffeq import odeint, odeint_adjoint
 
+from neuode.interface.common import DynamicMap
+from neuode.interface.struct import ODEDMapSpec
 
+
+# ode integrator block
 class ODEBlock(nn.Module):
 
     def __init__(self, dyn_map, spec):
@@ -41,9 +45,28 @@ class ODEBlock(nn.Module):
 
 
     def trajectory(self, x, ltime, rtime, num_timesteps):
-        assert 0.0 <= ltime <= rtime
         timesteps = torch.linspace(ltime, rtime, num_timesteps)
-        if ltime > 0.0:
+        if ltime != 0.0:
             timesteps = torch.cat([torch.Tensor([0.0]), timesteps], 0)
         out = self.forward(x, timesteps=timesteps)
-        return out[1:] if ltime > 0.0 else out
+        return out[1:] if ltime != 0.0 else out
+
+
+# ode block dynamic function
+class ODEDMap(DynamicMap):
+
+    def __init__(self, dyn_map, spec):
+        super(DynamicMap, self).__init__()
+
+        # check spec type
+        assert isinstance(spec, ODEDMapSpec)
+
+        # build ode block with base function
+        self.net = odeblock.ODEBlock(dyn_map, spec.odeblock)
+        self.use_time = spec.use_time
+
+
+    def forward(self, t, x, *args, **kwargs):
+        if self.use_time:
+            x = util.wrap_time(t, x)
+        return self.net(x)

@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import logging
 
-import neuode.util as util
+import neuode.util.util as util
 
 # logs
 logging.basicConfig(format='%(levelname)s [%(asctime)s]: %(message)s',
