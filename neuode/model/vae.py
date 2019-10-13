@@ -182,5 +182,8 @@ if __name__ == '__main__':
             torchvision.transforms.ToTensor(),
             # torchvision.transforms.Normalize((0.1307,), (0.3081,))
     ]))
-    mnist_loader = torch.utils.data.DataLoader(mnist, batch_size=BATCH_TRAIN_SIZE, shuffle=True)
+    mnist_loader = torch.utils.data.DataLoader(
+        mnist,
+        batch_size=BATCH_TRAIN_SIZE,
+        shuffle=True)
     generate_vae(mnist_loader, z_dim=32, nepoch=50, lr=0.1, verbose=True)

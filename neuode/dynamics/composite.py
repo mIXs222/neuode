@@ -12,8 +12,7 @@ from neuode.interface.struct import (
 
 from neuode.dynamics.linear import LinearDMap
 from neuode.dynamics.conv import ConvDMap
-
-import neuode.ode.odeblock as odeblock
+from neuode.dynamics.odeblock import ODEBlock, ODEDMap
 
 
 # from dynamic map spec to linear function
@@ -25,7 +24,7 @@ def build_dmap(spec):
         return ConvDMap(spec)
     elif isinstance(spec, ODEDMapSpec):
         dmap = build_dmap(spec.odeblock)
-        return odeblock.ODEDMap(dmap, spec)
+        return ODEDMap(dmap, spec)
     elif isinstance(spec, SequentialSpec):
         return SequentialDMap(spec)
     raise ValueError('Given dynmap spec not supported')
@@ -36,7 +35,7 @@ def build_dyn(dmap_spec, int_spec):
     assert isinstance(int_spec, IntSpec)
     dmap = build_dmap(dmap_spec)
     if isinstance(int_spec, ODEBlockSpec):
-        return odeblock.ODEBlock(dmap, int_spec)
+        return ODEBlock(dmap, int_spec)
     raise ValueError('Given integrtor spec not supported')
 
 

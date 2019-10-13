@@ -27,6 +27,8 @@ def test_sample_1(n):
 
 OMEGA = 0.3
 DAMP = 1.0
+
+
 def test_sample_2(n):
     x = torch.randn(n, 2)
     y = torch.zeros(n, 2)
@@ -62,14 +64,14 @@ if __name__ == '__main__':
         loss = criterion(pred, label)
         loss.backward()
         optimizer.step()
-        logger.info('Epoch %3d: loss= %f'%(epoch, loss.item()))
+        logger.info('Epoch %3d: loss= %f' % (epoch, loss.item()))
 
     # accuracy
     with torch.no_grad():
         data, label = test_sample(1000)
         pred = net(data)
         loss = criterion(pred, label)
-        logger.info('Final MSE loss= %f'%(loss.item()))
+        logger.info('Final MSE loss= %f' % (loss.item()))
 
     with torch.no_grad():
         # generate initial point and find trajectory
@@ -77,7 +79,7 @@ if __name__ == '__main__':
         NX = 10
         x0 = torch.Tensor([
             [np.cos(2 * i * np.pi / NX), np.sin(2 * i * np.pi / NX)]
-             for i in range(NX)])
+            for i in range(NX)])
         traj = net.trajectory(x0, L, R, NT).numpy()
 
         # plotting
