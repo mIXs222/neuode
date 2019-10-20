@@ -3,7 +3,7 @@ Structs
 """
 
 from dataclasses import dataclass
-from enum import Enum 
+from enum import Enum
 from typing import List
 
 
@@ -26,7 +26,7 @@ class ActivationFn(Enum):
     SOFTPLUS = 14
     SOFTSHRINK = 15
     PRELU = 16
-    SOFTSIGN = 17 
+    SOFTSIGN = 17
     TANHSHRINK = 18
     SOFTMIN = 19
     SOFTMAX = 20

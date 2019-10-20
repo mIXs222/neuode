@@ -29,7 +29,6 @@ class LinearDMap(DynamicMap):
         nets.append(util.actfn2nn(spec.act_fn))
         self.net = nn.Sequential(*nets)
 
-
     def forward(self, t, x, *args, **kwargs):
         if self.use_time:
             x = util.wrap_time_vec(t, x)
@@ -45,7 +44,6 @@ class ConcatSquashLinear(DynamicMap):
         self._hyper_bias = nn.Linear(1, dim_out, bias=False)
         self._hyper_gate = nn.Linear(1, dim_out)
         self._actfn = util.actfn2nn(actfn)
-
 
     def forward(self, t, x, *args, **kwargs):
         x = self._layer(x) * torch.sigmoid(self._hyper_gate(t.view(1, 1))) \

@@ -52,11 +52,10 @@ class VAEEncoder(nn.Module):
         self.linear_log_sigma_sq = nn.Linear(self.c_dim, spec.z_dim)
         reset_modules(self, spec.init_std)
 
-
     def forward(self, x):
         h = self.encode(x)
         return self.linear_mu(h.reshape(x.size(0), -1)), \
-               self.linear_log_sigma_sq(h.reshape(x.size(0), -1))
+            self.linear_log_sigma_sq(h.reshape(x.size(0), -1))
 
 
 class VAEDecoder(nn.Module):
@@ -86,7 +85,6 @@ class VAEDecoder(nn.Module):
         )
         reset_modules(self, spec.init_std)
 
-
     def forward(self, x):
         h = self.z2c(x)
         x = self.decode(h.reshape(x.size(0), *self.conv_dim))
@@ -99,7 +97,6 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         assert isinstance(spec, VAESpec)
         self.nets = nn.ModuleList([VAEEncoder(spec), VAEDecoder(spec)])
-
 
     def forward(self, x, ret_latent=False):
         mu, log_sigma_sq = self.nets[0](x)
@@ -126,7 +123,7 @@ def build_spec_from_loader(loader, z_dim):
     return VAESpec(channel, height, width, z_dim, 0.02)
 
 
-def generate_vae(loader, z_dim=256, nepoch=100, lr=0.01, momentum=0.9, 
+def generate_vae(loader, z_dim=256, nepoch=100, lr=0.01, momentum=0.9,
                  verbose=False):
     vae = VAE(build_spec_from_loader(loader), z_dim)
 
@@ -139,9 +136,11 @@ def generate_vae(loader, z_dim=256, nepoch=100, lr=0.01, momentum=0.9,
             loss, rcnst = vae_loss(vae, data)
             loss.backward()
             optimizer.step()
-            if verbose and (batch_idx % 100 == 0 or batch_idx == batch_total-1):
-                print('Epoch %3d [%4d/%4d (%2d%%)]: loss=1 %f'%(
-                    epoch, batch_idx, batch_total, 
+            if verbose and (
+                    batch_idx %
+                    100 == 0 or batch_idx == batch_total - 1):
+                print('Epoch %3d [%4d/%4d (%2d%%)]: loss=1 %f' % (
+                    epoch, batch_idx, batch_total,
                     int(100 * batch_idx / batch_total), loss.item()))
 
         # # plot result per epoch
@@ -170,6 +169,7 @@ def build_vae(spec, path):
     vae.eval()
     return vae
 
+
 if __name__ == '__main__':
     import torchvision
 
@@ -177,11 +177,12 @@ if __name__ == '__main__':
     BATCH_TRAIN_SIZE = 64
 
     mnist = torchvision.datasets.MNIST(DPATH, train=True, download=True,
-        transform=torchvision.transforms.Compose([
-            torchvision.transforms.Resize((32, 32)),
-            torchvision.transforms.ToTensor(),
-            # torchvision.transforms.Normalize((0.1307,), (0.3081,))
-    ]))
+                                       transform=torchvision.transforms.Compose([
+                                           torchvision.transforms.Resize(
+                                               (32, 32)),
+                                           torchvision.transforms.ToTensor(),
+                                           # torchvision.transforms.Normalize((0.1307,), (0.3081,))
+                                       ]))
     mnist_loader = torch.utils.data.DataLoader(
         mnist,
         batch_size=BATCH_TRAIN_SIZE,

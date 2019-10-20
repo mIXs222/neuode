@@ -25,15 +25,14 @@ class ConvDMap(DynamicMap):
         # parse spec into linear layer
         nets = []
         nets.append(nn.Conv2d(
-        	spec.in_channel + in_channel_add,
-        	spec.out_channel,
-        	kernel_size=spec.kernel_size,
-        	stride=spec.stride,
-        	padding=spec.padding,
+            spec.in_channel + in_channel_add,
+            spec.out_channel,
+            kernel_size=spec.kernel_size,
+            stride=spec.stride,
+            padding=spec.padding,
         ))
         nets.append(util.actfn2nn(spec.act_fn))
         self.net = nn.Sequential(*nets)
-
 
     def forward(self, t, x, *args, **kwargs):
         if self.use_time:

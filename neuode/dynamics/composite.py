@@ -52,7 +52,6 @@ class SequentialDMap(DynamicMap):
         # construct each linear layer
         self.nets = nn.ModuleList([build_dmap(sp) for sp in spec.specs])
 
-
     def forward(self, t, x, *args, **kwargs):
         for net in self.nets:
             x = net(t, x, *args, **kwargs)
@@ -67,7 +66,6 @@ class SequentialListDMap(DynamicMap):
 
         # construct each linear layer
         self.nets = nn.ModuleList(dyn_maps)
-
 
     def forward(self, t, x, *args, **kwargs):
         for net in self.nets:

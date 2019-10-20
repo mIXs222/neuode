@@ -28,6 +28,8 @@ def log_normal_pdf_2(z):
 
 
 AUG_DIM = 0
+
+
 def test_sample_1(n):
     mus = np.array([[2, 2], [-1, -2], [3, -1]])
     sigmas = np.array([0.4, 0.5, 1])
@@ -55,10 +57,10 @@ if __name__ == '__main__':
 
     # lfn = build_dmap(lfn_specs)
     lfn = SequentialListDMap([
-        ConcatSquashLinear(2+AUG_DIM, 64, ActivationFn.TANH),
+        ConcatSquashLinear(2 + AUG_DIM, 64, ActivationFn.TANH),
         ConcatSquashLinear(64, 64, ActivationFn.TANH),
         ConcatSquashLinear(64, 64, ActivationFn.TANH),
-        ConcatSquashLinear(64, 2+AUG_DIM, ActivationFn.NONE),
+        ConcatSquashLinear(64, 2 + AUG_DIM, ActivationFn.NONE),
     ])
     lfn_aug = FFJORDProbDMap(lfn, lfn_aug_spec)
     net = FFJORDBlock(lfn_aug, ffjord_spec, pdf_z=log_normal_pdf)
@@ -94,7 +96,8 @@ if __name__ == '__main__':
         # plotting
         cm = plt.cm.get_cmap('plasma')
         fig, axes = plt.subplots(ncols=3, figsize=(7.5, 2.5))
-        axes[0].scatter(xs[:, 0], xs[:, 1], s=0.7, alpha=0.3, c=true_p, cmap=cm)
+        axes[0].scatter(xs[:, 0], xs[:, 1], s=0.7,
+                        alpha=0.3, c=true_p, cmap=cm)
         axes[1].scatter(z0[:, 0], z0[:, 1], s=0.7, alpha=0.3, c=px, cmap=cm)
         axes[2].scatter(xs[:, 0], xs[:, 1], s=0.7, alpha=0.3, c=px, cmap=cm)
         plt.show()

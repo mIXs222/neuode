@@ -18,7 +18,6 @@ class ODEBlock(nn.Module):
         self.dyn_map = dyn_map
         self.spec = spec
 
-
     def forward(self, x, timesteps=None):
         # prepare evaluation time
         if timesteps is None:
@@ -43,7 +42,6 @@ class ODEBlock(nn.Module):
             options={'max_num_steps': self.spec.max_num_steps})
         return out[1] if timesteps is None else out
 
-
     def trajectory(self, x, ltime, rtime, num_timesteps):
         timesteps = torch.linspace(ltime, rtime, num_timesteps)
         if ltime != 0.0:
@@ -64,7 +62,6 @@ class ODEDMap(DynamicMap):
         # build ode block with base function
         self.net = odeblock.ODEBlock(dyn_map, spec.odeblock)
         self.use_time = spec.use_time
-
 
     def forward(self, t, x, *args, **kwargs):
         if self.use_time:

@@ -75,7 +75,6 @@ class FFJORDProbDMap(DynamicMap):
             self.draw_e = partial(draw_random_dir, dist=spec.div_fn.dist)
         self.e = None
 
-
     def forward(self, t, xlogpx, *args, **kwargs):
         # augmented dyn fn, f_aug in Algorithm 1 on page 5
         xt, logpx = xlogpx
@@ -87,7 +86,6 @@ class FFJORDProbDMap(DynamicMap):
             f = self.dyn_map(t, xt)
             div = self.div_fn(f, xt, self.e).view(xt.shape[0], 1)
         return (f, -div)
-
 
     def reset(self):
         self.e = None
@@ -106,7 +104,6 @@ class FFJORDBlock(nn.Module):
         self.probdyn_map = probdyn_map
         self.spec = spec
         self.pdf_z = pdf_z
-
 
     def forward(self, x, timesteps=None, ret_z=False):
         # prepare evaluation time
@@ -148,7 +145,6 @@ class FFJORDBlock(nn.Module):
         if ret_z:
             return zt, delta_logpx
         return delta_logpx
-
 
     def trajectory(self, x, ltime, rtime, num_timesteps):
         timesteps = torch.linspace(ltime, rtime, num_timesteps)
