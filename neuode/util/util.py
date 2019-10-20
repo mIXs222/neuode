@@ -70,3 +70,9 @@ def wrap_time(t, x):
 def normalize_range(xs):
     mi, mx = np.min(xs), np.max(xs)
     return (xs - mi) / (mx - mi)
+
+
+# log pdf of unit normal dist
+def log_normal_pdf(z):
+    pzs = -0.5 * np.log(2 * np.pi) - z.pow(2) / 2
+    return pzs.sum(-1, keepdim=True)

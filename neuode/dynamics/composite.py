@@ -57,3 +57,19 @@ class SequentialDMap(DynamicMap):
         for net in self.nets:
             x = net(t, x, *args, **kwargs)
         return x
+
+
+# sequential blocks
+class SequentialListDMap(DynamicMap):
+
+    def __init__(self, dyn_maps):
+        super(DynamicMap, self).__init__()
+
+        # construct each linear layer
+        self.nets = nn.ModuleList(dyn_maps)
+
+
+    def forward(self, t, x, *args, **kwargs):
+        for net in self.nets:
+            x = net(t, x, *args, **kwargs)
+        return x

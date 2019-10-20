@@ -43,6 +43,12 @@ class VAESpec:
     z_dim: int
     init_std: float
 
+# Divergence method spec
+@dataclass
+class DivSpec:
+    kind: str = 'approx'  # 'approx' or 'bruteforce'
+    dist: str = 'normal'  # 'normal' or 'rademacher'
+
 
 # Integrator spec
 @dataclass
@@ -54,7 +60,7 @@ class IntSpec:
 @dataclass
 class ODEBlockSpec(IntSpec):
     method: str = 'dopri5'
-    use_adjoint: bool = False
+    use_adjoint: bool = True
     tol: float = 1e-3
     max_num_steps: int = 1000
 
@@ -91,6 +97,13 @@ class ConvSpec(DMapSpec):
 class ODEDMapSpec(DMapSpec):
     odeblock: IntSpec
     base: DMapSpec
+    use_time: bool = False
+
+
+# Probabilistic dynamic function
+@dataclass
+class FFJORDProbDMapSpec(DMapSpec):
+    div_fn: DivSpec
     use_time: bool = False
 
 
