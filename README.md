@@ -1,13 +1,11 @@
-# NeuralODE Packages
+# Neural ODE Pack
 
-## Submodules
+Neural ODE ((Chen et. al. 2018)[https://arxiv.org/abs/1806.07366]), FFJORD ((Grathwohl et. al. 2019)[https://arxiv.org/abs/1810.01367], (repo)[https://github.com/rtqichen/ffjord]).
 
-### Interfaces (if)
+This repo contains wrappers and common architectures to learn dynamics.
 
-### Core ODE (ode)
-- ode solvers
-- neural ode block
+Tests can be found under `scripts/`.
 
-### Dynamic Functions (function)
-- mlp
-- cnn
+## Dependencies
+
+[torchdiffeq](https://github.com/rtqichen/torchdiffeq/)
