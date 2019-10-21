@@ -84,7 +84,8 @@ class FFJORDProbDMap(DynamicMap):
         with torch.set_grad_enabled(True):
             xt.requires_grad_(True)
             f = self.dyn_map(t, xt)
-            div = self.div_fn(f, xt, self.e).view(xt.shape[0], 1)
+            div = self.div_fn(f, xt, self.e)
+            div = div.view((xt.shape[0], 1) + xt.shape[2:])
         return (f, -div)
 
     def reset(self):
@@ -119,7 +120,7 @@ class FFJORDBlock(nn.Module):
             odesolver = odeint
 
         # initialize log p(x)
-        logpx = torch.zeros(x.shape[0], 1).to(x)
+        logpx = torch.zeros((x.shape[0], 1) + x.shape[2:]).to(x)
 
         # reset probdyn_map state
         self.probdyn_map.reset()

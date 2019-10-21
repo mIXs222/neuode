@@ -2,10 +2,11 @@
 Convolution-based dynamics
 """
 
+import torch
 import torch.nn as nn
 
 from neuode.interface.common import DynamicMap
-from neuode.interface.struct import ConvSpec
+from neuode.interface.struct import ConvSpec, ActivationFn
 import neuode.util.util as util
 
 
@@ -38,3 +39,38 @@ class ConvDMap(DynamicMap):
         if self.use_time:
             x = util.wrap_time_img(t, x)
         return self.net(x)
+
+
+# from rtqichen/ffjord/blob/master/lib/layers/diffeq_layers/basic.py
+class ConcatSquashConv2d(nn.Module):
+    def __init__(
+            self,
+            dim_in,
+            dim_out,
+            ksize=3,
+            stride=1,
+            padding=1,
+            dilation=1,
+            groups=1,
+            bias=True,
+            transpose=False,
+            actfn=ActivationFn.NONE):
+        super(ConcatSquashConv2d, self).__init__()
+        module = nn.ConvTranspose2d if transpose else nn.Conv2d
+        self._layer = module(
+            dim_in,
+            dim_out,
+            kernel_size=ksize,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias)
+        self._hyper_gate = nn.Linear(1, dim_out)
+        self._hyper_bias = nn.Linear(1, dim_out, bias=False)
+        self._actfn = util.actfn2nn(actfn)
+
+    def forward(self, t, x):
+        x = self._layer(x) * torch.sigmoid(self._hyper_gate(t.view(1, 1))).view(
+            1, -1, 1, 1) + self._hyper_bias(t.view(1, 1)).view(1, -1, 1, 1)
+        return self._actfn(x)
