@@ -10,7 +10,7 @@ import torch.nn as nn
 class DynamicMap(nn.Module):
 
     def __init__(self):
-        super(nn.Module, self).__init__()
+        super(DynamicMap, self).__init__()
 
     def forward(self, t, x, *args, **kwargs):
         raise NotImplementedError

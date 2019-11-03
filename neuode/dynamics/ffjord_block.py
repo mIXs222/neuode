@@ -13,6 +13,7 @@ from torchdiffeq import odeint, odeint_adjoint
 
 from neuode.interface.common import DynamicMap
 from neuode.interface.struct import FFJORDProbDMapSpec, ODEBlockSpec, DivSpec
+import neuode.util.util as util
 
 
 # Tr(df/dx(t)), divergence by bruteforce
@@ -109,9 +110,9 @@ class FFJORDBlock(nn.Module):
     def forward(self, x, timesteps=None, ret_z=False):
         # prepare evaluation time
         if timesteps is None:
-            ts = torch.tensor([0, 1]).type_as(x)
+            ts = torch.tensor([0, 1]).type(util.type_recursive(x))
         else:
-            ts = timesteps.type_as(x)
+            ts = timesteps.type(util.type_recursive(x))
 
         # pick solver
         if self.spec.use_adjoint:
@@ -141,8 +142,8 @@ class FFJORDBlock(nn.Module):
             delta_logpx = self.pdf_z(zt) - delta_logpx
 
         if timesteps is None:
-            zt = zt[1]
-            delta_logpx = delta_logpx[1]
+            zt = util.get_last_time(zt)
+            delta_logpx = util.get_last_time(delta_logpx)
         if ret_z:
             return zt, delta_logpx
         return delta_logpx
@@ -152,4 +153,4 @@ class FFJORDBlock(nn.Module):
         if ltime != 0.0:
             timesteps = torch.cat([torch.Tensor([0.0]), timesteps], 0)
         out = self.forward(x, timesteps=timesteps)
-        return out[1:] if ltime != 0.0 else out
+        return util.strip_init_time(out) if ltime != 0.0 else out

@@ -76,3 +76,30 @@ def normalize_range(xs):
 def log_normal_pdf(z):
     pzs = -0.5 * np.log(2 * np.pi) - z.pow(2) / 2
     return pzs.sum(-1, keepdim=True)
+
+
+# get a type of x
+def type_recursive(x):
+    if isinstance(x, torch.Tensor):
+        return x.type()
+    elif isinstance(x, tuple) or isinstance(x, list):
+        return type_recursive(x[0])
+    raise ValueError('type x unknown to unpack to cast integration time')
+
+
+# remove initial integration time from each tensor element
+def strip_init_time(x):
+    if isinstance(x, torch.Tensor):
+        return x[1:]
+    elif isinstance(x, tuple) or isinstance(x, list):
+        return [strip_init_time(xi) for xi in x]
+    raise ValueError('type x unknown to unpack to strip init time')
+
+
+# get last integration time from each tensor element
+def get_last_time(x):
+    if isinstance(x, torch.Tensor):
+        return x[-1]
+    elif isinstance(x, tuple) or isinstance(x, list):
+        return [get_last_time(xi) for xi in x]
+    raise ValueError('type x unknown to unpack to get last integration time')

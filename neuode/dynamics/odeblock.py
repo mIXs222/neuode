@@ -8,6 +8,7 @@ from torchdiffeq import odeint, odeint_adjoint
 
 from neuode.interface.common import DynamicMap
 from neuode.interface.struct import ODEDMapSpec
+import neuode.util.util as util
 
 
 # ode integrator block
@@ -19,11 +20,12 @@ class ODEBlock(nn.Module):
         self.spec = spec
 
     def forward(self, x, timesteps=None):
+
         # prepare evaluation time
         if timesteps is None:
-            ts = torch.tensor([0, 1]).type_as(x)
+            ts = torch.tensor([0, 1]).type(util.type_recursive(x))
         else:
-            ts = timesteps.type_as(x)
+            ts = timesteps.type(util.type_recursive(x))
 
         # pick solver
         if self.spec.use_adjoint:
@@ -40,14 +42,15 @@ class ODEBlock(nn.Module):
             atol=self.spec.tol,
             method=self.spec.method,
             options={'max_num_steps': self.spec.max_num_steps})
-        return out[1] if timesteps is None else out
+
+        return util.get_last_time(out) if timesteps is None else out
 
     def trajectory(self, x, ltime, rtime, num_timesteps):
         timesteps = torch.linspace(ltime, rtime, num_timesteps)
         if ltime != 0.0:
             timesteps = torch.cat([torch.Tensor([0.0]), timesteps], 0)
         out = self.forward(x, timesteps=timesteps)
-        return out[1:] if ltime != 0.0 else out
+        return util.strip_init_time(out) if ltime != 0.0 else out
 
 
 # ode block dynamic function

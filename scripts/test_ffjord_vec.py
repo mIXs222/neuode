@@ -37,9 +37,10 @@ def test_sample_1(n):
     # sigmas = np.array([10.0, 5.0, 1.0])
     ys = np.random.randint(0, 3, size=n)
     zs = np.random.randn(n, 2)
-    xs = zs * sigmas[np.tile(ys[:, None], (1, 2))] + mus[ys]
+    s = sigmas[np.tile(ys[:, None], (1, 2))]
+    xs = zs * s + mus[ys]
     xs = np.hstack((xs, np.zeros((n, AUG_DIM))))
-    ps = np.exp(-np.sum(zs**2, axis=1))
+    ps = np.exp(-np.sum(zs**2 / (2 * s), axis=1)) / (2 * np.pi * s[:, 0])
     return torch.Tensor(xs), torch.Tensor(ys), ps
 
 
@@ -66,8 +67,8 @@ if __name__ == '__main__':
     net = FFJORDBlock(lfn_aug, ffjord_spec, pdf_z=log_normal_pdf)
 
     # train
-    NEPOCH = 300
-    LR = 0.1
+    NEPOCH = 100
+    LR = 0.2
     optimizer = optim.SGD(net.parameters(), lr=LR, momentum=0.9)
     for epoch in range(NEPOCH):
         data, _, _ = test_sample(1000)
