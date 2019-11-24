@@ -82,10 +82,14 @@ class FFJORDProbDMap(DynamicMap):
         if self.e is None or self.e.shape != xt.shape:
             # redraw epsilon since the shapes don't match
             self.e = None if self.draw_e is None else self.draw_e(xt)
+        e = self.e
+        #     e = None if self.draw_e is None else self.draw_e(xt)
+        # else:
+        #     e = self.e
         with torch.set_grad_enabled(True):
             xt.requires_grad_(True)
             f = self.dyn_map(t, xt)
-            div = self.div_fn(f, xt, self.e)
+            div = self.div_fn(f, xt, e)
             div = div.view((xt.shape[0], 1) + xt.shape[2:])
         return (f, -div)
 

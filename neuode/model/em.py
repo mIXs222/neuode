@@ -12,15 +12,16 @@ from neuode.interface.common import DynamicMap
 
 class GMMTorch:
 
-    def __init__(self, n_components, x):
+    def __init__(self, n_components, x, gmm_kwargs=dict()):
         # fit mixture model
         if isinstance(x, torch.Tensor):
             x = x.detach().numpy()
         bsize = x.shape[0]
-        g = GaussianMixture(
-            n_components=n_components).fit(
-            x.reshape(
-                bsize, -1))
+        g = GaussianMixture(n_components=n_components, **gmm_kwargs) \
+            .fit(x.reshape(bsize, -1))
+        # g.covariances_ = [np.eye(x.shape[-1])] * bsize
+        if len(g.covariances_.shape) == 2:
+            g.covariances_ = np.array([np.diag(var) for var in g.covariances_])
 
         # extract mean and covariance to comppute pdf later
         self.log_weights = torch.Tensor(np.log(g.weights_))
@@ -32,14 +33,23 @@ class GMMTorch:
                 g.means_,
                 g.covariances_)]
         self.means = torch.Tensor(g.means_)
+        self.covariances = torch.Tensor(g.covariances_)
+
+
+    def predict(self, x, normalize=False):
+        likelihoods = torch.stack(
+            [mnormal.log_prob(x.reshape(x.shape[0], -1)) + log_weight
+            for mnormal, log_weight in zip(self.mnormals, self.log_weights)],
+            dim=1)
+        if normalize:
+            likelihoods = likelihoods - torch.logsumexp(likelihoods, dims=1)
+        return likelihoods
+
 
     def likelihood(self, x):
         # get likelihood on this mixture, q(c=this | x)
         # output shape: [batch,]
-        likelihoods = torch.stack(
-            [mnormal.log_prob(x.reshape(x.shape[0], -1)) + log_weight
-             for mnormal, log_weight in zip(self.mnormals, self.log_weights)],
-            dim=1)
+        likelihoods = self.predict(x)
         return torch.logsumexp(likelihoods, dim=1)
 
 
@@ -52,6 +62,7 @@ class MultiGMMTorch:
         self.gmms = []
         for c in range(n_classes):
             self.gmms.append(GMMTorch(n_components, x[y == c]))
+
 
     def posterior(self, x):
         # get posterior of all classes, q(c | x)
