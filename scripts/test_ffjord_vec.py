@@ -15,7 +15,9 @@ from neuode.interface.struct import (
 )
 from neuode.dynamics.linear import ConcatSquashLinear
 from neuode.dynamics.composite import build_dmap, SequentialListDMap
-from neuode.dynamics.ffjord_block import FFJORDProbDMap, FFJORDBlock
+from neuode.dynamics.ffjord_block import (
+    FFJORDProbDMap, FFJORDBlock, SequentialFFJORDBlock
+)
 from neuode.util.util import log_normal_pdf, actfn2nn
 from neuode.util.logging import logger
 
@@ -65,6 +67,30 @@ if __name__ == '__main__':
     ])
     lfn_aug = FFJORDProbDMap(lfn, lfn_aug_spec)
     net = FFJORDBlock(lfn_aug, ffjord_spec, pdf_z=log_normal_pdf)
+
+    # net = SequentialFFJORDBlock([
+    #     FFJORDBlock(
+    #         FFJORDProbDMap(
+    #             SequentialListDMap([
+    #                 ConcatSquashLinear(2 + AUG_DIM, 64, ActivationFn.TANH),
+    #                 ConcatSquashLinear(64, 2 + AUG_DIM, ActivationFn.NONE),
+    #             ]),
+    #             lfn_aug_spec
+    #         ),  # augment
+    #         ffjord_spec,
+    #     ),
+    #     FFJORDBlock(
+    #         FFJORDProbDMap(
+    #             SequentialListDMap([
+    #                 ConcatSquashLinear(2 + AUG_DIM, 64, ActivationFn.TANH),
+    #                 ConcatSquashLinear(64, 2 + AUG_DIM, ActivationFn.NONE),
+    #             ]),
+    #             lfn_aug_spec
+    #         ),  # augment
+    #         ffjord_spec,
+    #         pdf_z=log_normal_pdf
+    #     ),
+    # ])
 
     # train
     NEPOCH = 100

@@ -111,7 +111,7 @@ class FFJORDBlock(nn.Module):
         self.spec = spec
         self.pdf_z = pdf_z
 
-    def forward(self, x, timesteps=None, ret_z=False):
+    def forward(self, x, logpx=None, timesteps=None, ret_z=False):
         # prepare evaluation time
         if timesteps is None:
             ts = torch.tensor([0, 1]).type(util.type_recursive(x))
@@ -125,7 +125,8 @@ class FFJORDBlock(nn.Module):
             odesolver = odeint
 
         # initialize log p(x)
-        logpx = torch.zeros((x.shape[0], 1) + x.shape[2:]).to(x)
+        if logpx is None:
+            logpx = torch.zeros((x.shape[0], 1) + x.shape[2:]).to(x)
 
         # reset probdyn_map state
         self.probdyn_map.reset()
@@ -158,3 +159,21 @@ class FFJORDBlock(nn.Module):
             timesteps = torch.cat([torch.Tensor([0.0]), timesteps], 0)
         out = self.forward(x, timesteps=timesteps)
         return util.strip_init_time(out) if ltime != 0.0 else out
+
+
+# sequential ffjord blocks
+class SequentialFFJORDBlock(nn.Module):
+
+    def __init__(self, dyn_maps):
+        super(SequentialFFJORDBlock, self).__init__()
+
+        # construct each linear layer
+        self.nets = nn.ModuleList(dyn_maps)
+
+    def forward(self, x, ret_z=False, *args, **kwargs):
+        logpx = None
+        for net in self.nets:
+            x, logpx = net(x, logpx, ret_z=True, *args, **kwargs)
+        if ret_z:
+            return x, logpx
+        return logpx

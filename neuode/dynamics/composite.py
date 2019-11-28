@@ -43,7 +43,7 @@ def build_dyn(dmap_spec, int_spec):
 class SequentialDMap(DynamicMap):
 
     def __init__(self, spec):
-        super(DynamicMap, self).__init__()
+        super(SequentialDMap, self).__init__()
 
         # sanity check
         assert isinstance(spec, SequentialSpec)
@@ -62,7 +62,7 @@ class SequentialDMap(DynamicMap):
 class SequentialListDMap(DynamicMap):
 
     def __init__(self, dyn_maps):
-        super(DynamicMap, self).__init__()
+        super(SequentialListDMap, self).__init__()
 
         # construct each linear layer
         self.nets = nn.ModuleList(dyn_maps)
