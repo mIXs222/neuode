@@ -77,6 +77,7 @@ class LinearSpec(DMapSpec):
     in_dim: int
     out_dim: int
     act_fn: ActivationFn
+    bias: bool = True
     use_time: bool = False
 
 

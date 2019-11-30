@@ -42,7 +42,8 @@ class GMMTorch:
             for mnormal, log_weight in zip(self.mnormals, self.log_weights)],
             dim=1)
         if normalize:
-            likelihoods = likelihoods - torch.logsumexp(likelihoods, dims=1)
+            norm = torch.logsumexp(likelihoods, dim=1)[:, None]
+            likelihoods = likelihoods - norm
         return likelihoods
 
 

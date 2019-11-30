@@ -25,7 +25,8 @@ class LinearDMap(DynamicMap):
 
         # parse spec into linear layer
         nets = []
-        nets.append(nn.Linear(spec.in_dim + in_dim_add, spec.out_dim))
+        nets.append(nn.Linear(spec.in_dim + in_dim_add, spec.out_dim, 
+                              bias=spec.bias))
         nets.append(util.actfn2nn(spec.act_fn))
         self.net = nn.Sequential(*nets)
 
