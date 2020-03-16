@@ -47,10 +47,12 @@ class GMMTorch:
         return likelihoods
 
 
-    def likelihood(self, x):
+    def likelihood(self, x, agg=True):
         # get likelihood on this mixture, q(c=this | x)
-        # output shape: [batch,]
+        # output shape: [batch,] if agg else [batch, n_components]
         likelihoods = self.predict(x)
+        if not agg:
+            return likelihoods
         return torch.logsumexp(likelihoods, dim=1)
 
 
